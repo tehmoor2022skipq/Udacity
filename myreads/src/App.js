@@ -1,23 +1,24 @@
 import logo from './logo.svg';
 import './App.css';
+import React, { useState, useEffect } from 'react';
+import { getAll, get } from './BooksAPI';
 
 function App() {
+  const [data, setdata] = useState()
+  const getData = async () => {
+    let da = await getAll();
+    setdata(da);
+    console.log('Inside getdata', da)
+  }
+  useEffect(() => {
+    let d = getData();
+
+
+  }, []);
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div>
+      <h1>Hello World!</h1>
     </div>
   );
 }
