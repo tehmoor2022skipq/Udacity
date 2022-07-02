@@ -1,14 +1,38 @@
 import React from 'react';
 import { useState, useEffect } from "react";
+import { search } from './BooksAPI';
 function Search(props) {
-    const [search, setsearch] = useState('');
+    const [searchQuery, setsearchQuery] = useState('');
     const [books, setbooks] = useState([]);
-    const handleSearch = (e) => {
-        setsearch(e.target.value);
+    async function handleSearch() {
+        if (searchQuery.length > 0) {
+            search(searchQuery.trim()).then(data_books => {
+                if (data_books.error) {
+                    console.log('Error in retreiving data while searching : ', data_books.error)
+                }
+                else {
+                    data_books.forEach(data => {
+                        let found = false
+                        books.forEach(book => {
+                            if (data.id === book.id) {
+                                data.shelf = book.shelf
+                                found = true
+                            }
+                        })
+                        if (!found) data.shelf = 'none'
+                    })
+                    setbooks(data_books)
+                }
+            }).catch(error => console.log('Error in searching : ', error))
+        }
     }
+
     useEffect(() => {
-        search === '' ? setbooks([]) : setbooks(props.data.filter(book => book.title.toLowerCase().includes(search.toLowerCase())))
-    }, [search])
+        if (searchQuery === '') setbooks([]);
+        else
+            handleSearch();
+    }, [searchQuery])
+
 
     return (
         <div>
@@ -24,8 +48,8 @@ function Search(props) {
                         <input
                             type="text"
                             placeholder="Search by title, author, or ISBN"
-                            value={search}
-                            onChange={handleSearch}
+                            value={searchQuery}
+                            onChange={(event) => { setsearchQuery(event.target.value) }}
                         />
                     </div>
                 </div>
@@ -33,7 +57,7 @@ function Search(props) {
                     <ol className="books-grid">
                         {books.map((book) => {
                             return (
-                                <li key={book.title}>
+                                <li key={book.title + book.authors[0]}>
                                     <div className="book">
                                         <div className="book-top">
                                             <div

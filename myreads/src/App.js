@@ -20,10 +20,11 @@ function App() {
   }, []);
 
   const handleUpdate = (book, shelf) => {
-    let filter = data.filter((item) => item.title === book.title);
-    filter[0].shelf = shelf;
-    let secondFilter = data.filter((item) => item.title !== book.title);
-    setdata([...secondFilter, ...filter]);
+    console.log("Book", book);
+    book.shelf = shelf;
+    let filter = data.filter((item) => item.title !== book.title);
+    console.log("Filter", filter);
+    setdata([...filter, book]);
   }
 
 
