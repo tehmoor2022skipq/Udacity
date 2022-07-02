@@ -1,37 +1,43 @@
-import './App.css';
-import React, { useState, useEffect } from 'react';
-import { getAll, get } from './BooksAPI';
-import Books from './Books';
-
+import "./App.css";
+import { useState, useEffect } from "react";
+import { getAll, search, update } from './BooksAPI';
+import Books from "./Books";
+import Search from "./Search";
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import BooksDashboard from "./BooksDashboard";
 function App() {
+  const [showSearchPage, setShowSearchpage] = useState(false);
   const [data, setdata] = useState();
   const getData = async () => {
     let da = await getAll();
-    setdata(da);
+    let s = await search('react')
+    console.log('SEARCH', s);
 
+    setdata(da);
   }
   useEffect(() => {
     let d = getData();
-    // console.log('useeffect', data);
   }, []);
 
-  return (
-    <div>
-      <h1 style={{ backgroundColor: "#2A7D2D", color: 'white', textAlign: 'center', padding: '10px' }}>MyReads</h1>
+  const handleUpdate = (book, shelf) => {
+    let filter = data.filter((item) => item.title === book.title);
+    filter[0].shelf = shelf;
+    let secondFilter = data.filter((item) => item.title !== book.title);
+    setdata([...secondFilter, ...filter]);
+  }
 
-      <div>
-        <h2 style={{ marginLeft: '10px' }}>Currently Reading</h2>
-        {data && <Books data={data} shelf='currentlyReading' />}
+
+  return (
+    <Router>
+      <div className="app">
+        <Routes>
+          <Route exact path="/search" element={<Search data={data} showSearchPage={showSearchPage} handler={setShowSearchpage} update={handleUpdate} />} />
+
+          <Route exact path="/" element={<BooksDashboard data={data} update={handleUpdate} />} />
+
+        </Routes>
       </div>
-      <div>
-        <h2 style={{ marginLeft: '10px' }}>Want to Read</h2>
-        {data && <Books data={data} shelf='wantToRead' />}
-      </div>
-      <div>
-        <h2 style={{ marginLeft: '10px' }}>Read</h2>
-        {data && <Books data={[data]} shelf='read' />}
-      </div>
-    </div>
+    </Router>
   );
 }
 

@@ -6,20 +6,54 @@ function Books(props) {
     console.log('data', bookShelf)
     return (
         <div>
-            {/* {console.log('props', (bookShelf))} */}
-            <div className='grid-container'>
-                {bookShelf.map((book) => <div className='grid-item'>{
-                    <img src={book.imageLinks.thumbnail} />
-                }
-                    <div class="dropdown">
-                        <button class="dropbtn">^</button>
-                        <div class="dropdown-content">
-                            <a href="#">Read</a>
-                            <a href="#">Want to Read</a>
-                            <a href="#">Currently Reading</a>
+            <div className="list-books">
+                <div className="list-books-content">
+                    <div>
+                        <div className="bookshelf">
+                            <h2 className="bookshelf-title">{props.title}</h2>
+                            <div className="bookshelf-books">
+                                <ol className="books-grid">
+                                    {bookShelf.map((book) => {
+                                        return (
+                                            <li key={book.title}>
+                                                <div className="book">
+                                                    <div className="book-top">
+                                                        <div
+                                                            className="book-cover"
+                                                            style={{
+                                                                width: 128,
+                                                                height: 193,
+                                                                backgroundImage:
+                                                                    `url(${book.imageLinks.thumbnail})`,
+                                                            }}
+                                                        ></div>
+                                                        <div className="book-shelf-changer">
+                                                            <select defaultValue={props.shelf} onChange={(e) => { props.update(book, e.target.value) }}>
+                                                                <option value="none" disabled>
+                                                                    Move to...
+                                                                </option>
+                                                                <option value="currentlyReading">
+                                                                    Currently Reading
+                                                                </option>
+                                                                <option value="wantToRead">Want to Read</option>
+                                                                <option value="read">Read</option>
+                                                                <option value="none">None</option>
+                                                            </select>
+                                                        </div>
+                                                    </div>
+                                                    <div className="book-title">{book.title}</div>
+                                                    <div className="book-authors">{book.authors[0]}</div>
+                                                </div>
+                                            </li>
+                                        )
+                                    })}
+
+                                </ol>
+                            </div>
                         </div>
                     </div>
-                </div>)}
+                </div>
+
             </div>
         </div>
     )
