@@ -1,49 +1,47 @@
 import React from 'react';
 import { useState, useEffect } from "react";
 import { search } from './BooksAPI';
-function Search(props) {
+import Book from './Book';
+import { Link } from 'react-router-dom';
+function Search({ books, update }) {
     const [searchQuery, setsearchQuery] = useState('');
-    const [books, setbooks] = useState([]);
-    async function handleSearch() {
-        if (searchQuery.length > 0) {
-            search(searchQuery.trim()).then(data_books => {
-                if (data_books.error) {
-                    console.log('Error in retreiving data while searching : ', data_books.error)
-                }
-                else {
-                    data_books.forEach(data => {
-                        let found = false
-                        books.forEach(book => {
-                            if (data.id === book.id) {
-                                data.shelf = book.shelf
-                                found = true
-                            }
-                        })
-                        if (!found) data.shelf = 'none'
-                    })
-                    setbooks(data_books)
-                }
-            }).catch(error => console.log('Error in searching : ', error))
-        }
-    }
+    const [result, setresult] = useState([]);
 
     useEffect(() => {
-        if (searchQuery === '') setbooks([]);
-        else
-            handleSearch();
-    }, [searchQuery])
-
+        const handleSearch = () => {
+            if (searchQuery.length > 0) {
+                search(searchQuery.trim()).then(data => {
+                    if (data.error) {
+                        setresult([])
+                    }
+                    else {
+                        data.forEach(data_ => {
+                            let found = false
+                            books.forEach(book => {
+                                if (data_.id === book.id) {
+                                    data_.shelf = book.shelf
+                                    found = true
+                                }
+                            })
+                            if (!found) data_.shelf = 'none'
+                        })
+                        setresult(data)
+                    }
+                }).catch(e => console.log('Error while searching', e))
+            }
+        }
+        searchQuery === '' ? setresult([]) : handleSearch()
+    }, [searchQuery, books])
 
     return (
         <div>
-            <div className="search-books">
+            {result && <div className="search-books">
                 <div className="search-books-bar">
-                    <a
+                    <Link to='/'
                         className="close-search"
-                        onClick={() => props.handler(!props.showSearchPage)}
                     >
                         Close
-                    </a>
+                    </Link>
                     <div className="search-books-input-wrapper">
                         <input
                             type="text"
@@ -55,42 +53,20 @@ function Search(props) {
                 </div>
                 <div className="search-books-results">
                     <ol className="books-grid">
-                        {books.map((book) => {
+                        {result.map((book) => {
                             return (
-                                <li key={book.title + book.authors[0]}>
-                                    <div className="book">
-                                        <div className="book-top">
-                                            <div
-                                                className="book-cover"
-                                                style={{
-                                                    width: 128,
-                                                    height: 193,
-                                                    backgroundImage:
-                                                        `url(${book.imageLinks.thumbnail})`,
-                                                }}
-                                            ></div>
-                                            <div className="book-shelf-changer">
-                                                <select onChange={(e) => { props.update(book, e.target.value) }} defaultValue={book.shelf} >
-                                                    <option value="none" disabled>
-                                                        Move to...
-                                                    </option>
-                                                    <option value="currentlyReading">Currently Reading</option>
-                                                    <option value="wantToRead">Want to Read</option>
-                                                    <option value="read">Read</option>
-
-                                                </select>
-                                            </div>
-                                        </div>
-                                        <div className="book-title">{book.title}</div>
-                                        <div className="book-authors">{book.authors[0]}</div>
-                                    </div>
+                                <li key={book.title + book.id}>
+                                    <Book book={book} updateBookShelf={update} />
                                 </li>)
                         })}
                     </ol>
                 </div>
             </div>
+            }
         </div>
+
     )
+
 }
 
 export default Search
